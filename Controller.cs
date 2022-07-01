@@ -403,8 +403,7 @@ namespace BabySmash
             public ThreadedSpeak(string Word)
             {
                 this.Word = Word;
-                CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
-                InstalledVoice neededVoice = this.SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
+                InstalledVoice neededVoice = GetInstalledVoice();
                 if (neededVoice == null)
                 {
                     //http://superuser.com/questions/590779/how-to-install-more-voices-to-windows-speech
@@ -431,6 +430,20 @@ namespace BabySmash
                 SpeechSynth.Rate = -1;
                 SpeechSynth.Volume = 100;
             }
+
+            private InstalledVoice GetInstalledVoice()
+            {
+                CultureInfo keyboardLanguage = WinForms.InputLanguage.CurrentInputLanguage.Culture;
+                InstalledVoice neededVoice = SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
+                if (neededVoice != null && neededVoice.Enabled)
+                {
+                    return neededVoice;
+                }
+
+                keyboardLanguage = CultureInfo.GetCultureInfo("en-US");
+                return SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
+            }
+
             public void Speak()
             {
                 Thread oThread = new Thread(new ThreadStart(this.Start));
